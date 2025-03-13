@@ -154,7 +154,48 @@ class ClientController extends ApiController
     {
         return $this->upsertData($request, 0);
     }
+    
+    /**
+    * @OA\Post(
+    *   path="/client/webhook",
+    *   tags={"Clientes"},
+    *   description="Actualizar cliente / contacto",
+    *   @OA\RequestBody(
+    *       required=true,
+    *       @OA\JsonContent(ref="#/components/schemas/Addclient")
+    *   ),
+    *   @OA\Response(
+    *      response=200,
+    *      description="Successful operation",
+    *        @OA\JsonContent(
+    *            @OA\Property(property="message", type="string"),
+    *            @OA\Property(property="error", type="boolean")
+    *        )
+    *  ),
+    * @OA\Response(response=400, description="Not found"),
+    * @OA\Response(response=401, description="Unauthorized")
+    * )
+    */
+    public function webhook(Request $request)
+    {
+        $data = $request->validate([
+            'fields.name' => 'required|string|max:255',
+            'fields.email' => 'required|email|max:255',
+            'fields.phone' => 'required|phone|max:255',
+            'fields.notes' => 'required|string',
+        ]);
+        $name = trim($data['fields']['name']);
+        $email = $data['fields']['email'];
+        $phone = $data['fields']['phone'];
+        $notes = $data['fields']['notes'];
+        $nameParts = explode(' ', $name, 2);
+        $contact_name = $nameParts[0];
+        $contact_lastname = isset($nameParts[1]) ? $nameParts[1] : null;
 
+        Client::create(compact('contact_name', 'contact_lastname', 'email', 'phone', 'notes'));
+
+        return response()->json(['message' => 'Data saved successfully'], 201);
+    }
     /**
     * @OA\Put(
     *   path="/client/{id}",

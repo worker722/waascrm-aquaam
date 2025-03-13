@@ -30,7 +30,8 @@ Route::name('api.')->prefix('api/v1')->middleware([
 
     //Clients
     Route::resource('client', ClientController::class)->only(['index', 'show', 'store', 'update']);
-
+    Route::post('client/webhook', [ClientController::class, 'webhook']);
+    
     //Contacts
     Route::resource('contact', ClientController::class)->only(['index', 'show', 'store', 'update']);
 
