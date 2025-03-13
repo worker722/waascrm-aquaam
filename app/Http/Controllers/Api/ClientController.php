@@ -181,7 +181,7 @@ class ClientController extends ApiController
         $data = $request->validate([
             'fields.name' => 'required|string|max:255',
             'fields.email' => 'required|email|max:255',
-            'fields.phone' => 'required|phone|max:255',
+            'fields.phone' => 'required|digits_between:10,15',
             'fields.notes' => 'required|string',
         ]);
         $name = trim($data['fields']['name']);
