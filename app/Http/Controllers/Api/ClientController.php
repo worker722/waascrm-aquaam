@@ -178,21 +178,27 @@ class ClientController extends ApiController
     */
     public function webhook(Request $request)
     {
-        $data = $request->validate([
-            'fields.name' => 'required|string|max:255',
-            'fields.email' => 'required|email|max:255',
-            'fields.phone' => 'required|digits_between:10,15',
-            'fields.notes' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'form_fields.name' => 'required|string|max:255',
+            'form_fields.email' => 'required|email|max:255',
+            'form_fields.phone' => 'required|max:255',
+            'form_fields.notes' => 'required|string',
         ]);
-        $name = trim($data['fields']['name']);
-        $email = $data['fields']['email'];
-        $phone = $data['fields']['phone'];
-        $notes = $data['fields']['notes'];
+    
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+        
+        $name = trim($request->form_fields['name']);
+        $email = $request->form_fields['email'];
+        $phone = $request->form_fields['phone'];
+        $notes = $request->form_fields['notes'];
+        $company_name = "";
         $nameParts = explode(' ', $name, 2);
         $contact_name = $nameParts[0];
         $contact_lastname = isset($nameParts[1]) ? $nameParts[1] : null;
 
-        Client::create(compact('contact_name', 'contact_lastname', 'email', 'phone', 'notes'));
+        Client::create(compact('contact_name', 'contact_lastname', 'company_name', 'email', 'phone', 'notes'));
 
         return response()->json(['message' => 'Data saved successfully'], 201);
     }
