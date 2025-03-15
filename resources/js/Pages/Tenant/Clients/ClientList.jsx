@@ -46,8 +46,8 @@ export default function ClientList({ auth, title, isClient, filters, filtered}) 
             selector: (row) => {
                 return (
                     <div className={row['expired'] == 1 ? 'text-warning' : (row['expired'] == 2 ? 'text-danger' : '')}>
-                        <div>{row['company_name']}</div>
-                        <div><small>{row['business_name']}</small></div>
+                        <div>{row['contact_name']} {row['contact_lastname' || '']}</div>
+                        <div><small>{row['company_name']} {row['business_name'] ? `(${row['business_name']})` : ''}</small></div>
                     </div>
                 )
             },

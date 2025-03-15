@@ -28,7 +28,8 @@ export default function SparePartList({ auth, title }) {
     const tableColumns = [
         {
             name: 'Nombre',
-            selector: row => row['name'],
+            selector: row => row['contact_name'],
+            // selector: row => `${row['contact_name']} ${row['contact_lastname']}`,
             sortable: true,
             center: false,
             maxWidth: "350px"
