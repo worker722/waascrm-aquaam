@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Validator;
+use Illuminate\Support\Facades\Log;
 
 class ClientController extends ApiController
 {
@@ -178,6 +179,9 @@ class ClientController extends ApiController
     */
     public function webhook(Request $request)
     {
+
+        Log::channel('webhook')->info('Webhook Received:', $request->all());
+
         $validator = Validator::make($request->all(), [
             'form_fields.name' => 'required|string|max:255',
             'form_fields.email' => 'required|email|max:255',
