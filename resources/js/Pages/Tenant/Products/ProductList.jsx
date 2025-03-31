@@ -1,15 +1,16 @@
-import React, { Fragment, useState, useEffect, useContext } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Breadcrumbs, Btn } from "../../../Template/AbstractElements";
 import AuthenticatedLayout from '@/Template/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import axios from "axios";
 import Edit from '@/Template/CommonElements/Edit';
-import { Check, X }  from 'react-feather';
+import { Check, X } from 'react-feather';
 import { Image } from "react-bootstrap";
 import Icon from '@/Template/CommonElements/Icon';
 import FilterTable from "@/Template/Components/FilterTable";
+import Switch from '@/Template/CommonElements/Switch';
 
-export default function ProductList({ auth, title, filters}) {
+export default function ProductList({ auth, title, filters }) {
     const [dataList, setDataList] = useState([]);
     const [extraCatalogData, setExtraCatalogData] = useState([]);
 
@@ -24,8 +25,8 @@ export default function ProductList({ auth, title, filters}) {
         setDataList(response.data);
     }
 
-    const enableDisable = async (id) => {
-        const response = await axios.post(route('prs.change.status', id));
+    const enableDisable = async (ids, checked = null) => {
+        await axios.post(route('prs.change.status'), { ids, checked });
         getProducts();
     }
 
@@ -38,7 +39,7 @@ export default function ProductList({ auth, title, filters}) {
             name: '',
             selector: row => {
                 return (
-                    <Image height={50} src={row['main_image']} rounded/>
+                    <Image height={50} src={row['main_image']} rounded />
                 )
             },
             sortable: true,
@@ -51,7 +52,7 @@ export default function ProductList({ auth, title, filters}) {
                 return (
                     <>
                         {row['inner_active'] ? <Check color="green" size={15} /> : <X color="red" size={15} />}
-                        <span className="ms-1" style={{position: 'relative', top: '-4px'}}>{row['final_model']}</span>
+                        <span className="ms-1" style={{ position: 'relative', top: '-4px' }}>{row['final_model']}</span>
                     </>
                 )
             },
@@ -80,18 +81,28 @@ export default function ProductList({ auth, title, filters}) {
             center: false,
         },
         {
+            name: "Visibilidad",
+            selector: row => (
+                <Switch
+                    nomargin
+                    input={{ onChange: () => enableDisable([row['id']]), name: 'visibility', defaultChecked: row['inner_active'] }}
+                />
+            ),
+            sortable: false,
+            center: false,
+            maxWidth: "140px"
+        },
+        {
             name: 'Acciones',
             selector: (row) => {
                 return (
                     <>
                         <a href={route('prs.pdf', row['id'])} target="_blank">
-                            <Icon icon="File" id={'ficha' + row['id']} tooltip="Ficha Técnica"/>
+                            <Icon icon="File" id={'ficha' + row['id']} tooltip="Ficha Técnica" />
                         </a>
-                        {row['inner_active'] != 1 ? 
-                            <Icon icon="Check" id={'activate-' + row['id']} tooltip="Activar" onClick={() => enableDisable(row['id'])} className="text-success"/> :
-                            <Icon icon="X" id={'de-' + row['id']} tooltip="Desactivar" onClick={() => enableDisable(row['id'])} className="text-danger"/>
-                        }
-                        <Edit onClick={() => router.visit(route('prs.edit', row['id']))} id={'edit-' + row['id']}/>
+                        &nbsp;
+                        &nbsp;
+                        <Edit onClick={() => router.visit(route('prs.edit', row['id']))} id={'edit-' + row['id']} />
                     </>
                 )
             },
@@ -100,6 +111,23 @@ export default function ProductList({ auth, title, filters}) {
             maxWidth: "100px"
         },
     ];
+    const CustomActionsMemo = React.memo(({ data }) => {
+        const ids = data.map(item => item.id);
+        const disVisible = !data.find(item => !item.inner_active);
+        const disInVisible = !data.find(item => item.inner_active);
+        return (
+            <div>
+                <Btn attrBtn={{ color: 'info', className: 'btn-sm', disabled: disVisible, onClick: () => enableDisable(ids, true) }}>
+                    Hacer todo visible
+                </Btn>
+                &nbsp;
+                &nbsp;
+                <Btn attrBtn={{ color: 'danger', className: 'btn-sm', disabled: disInVisible, onClick: () => enableDisable(ids, false) }}>
+                    Hacer todo invisible
+                </Btn>
+            </div>
+        )
+    })
 
     return (
         <AuthenticatedLayout user={auth.user}>
@@ -109,11 +137,12 @@ export default function ProductList({ auth, title, filters}) {
 
                 <div className="d-flex flex-row-reverse mb-2">
                     <a href={route('prs.pdf', 0) + '?' + extraCatalogData.join('&')} target="_blank" className="me-1">
-                        <Btn attrBtn={{ color: 'primary', className : 'btn-sm'}}>Descargar Catalogo</Btn>
+                        <Btn attrBtn={{ color: 'primary', className: 'btn-sm' }}>Descargar Catalogo</Btn>
                     </a>
                 </div>
 
                 <FilterTable
+                    CustomActions={CustomActionsMemo}
                     dataList={dataList}
                     tableColumns={tableColumns}
                     filters={filters}

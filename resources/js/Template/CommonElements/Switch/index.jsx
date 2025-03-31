@@ -4,7 +4,7 @@ import { FormGroup, Label, Input } from 'reactstrap';
 const Switch = (props) => {
   return (
     <>
-        <FormGroup className='mt-4' switch>
+        <FormGroup className={`${props.nomargin ? '' : 'mt-4'}`} switch>
           <Input
             bsSize="md"
             type="switch"

@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { customStyles } from "@/Template/Styles/DataTable";
 import DataTable from 'react-data-table-component';
 import { FilterComponent } from './FilterComponent';
-import { Modal, ModalBody, ModalFooter, ModalHeader, Form} from "reactstrap";
+import { Modal, ModalBody, ModalFooter, ModalHeader, Form } from "reactstrap";
 import { Btn } from "../../../Template/AbstractElements";
 import FloatingInput from '@/Template/CommonElements/FloatingInput';
 import Select from '@/Template/CommonElements/Select';
 
 const FilterTable = (props) => {
-    const { dataList, tableColumns, filters } = props;
+    const { dataList, tableColumns, filters, CustomActions } = props;
     const [filterText, setFilterText] = useState('');
-	const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+    const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
     const [keys, setKeys] = useState([]);
     const [modal, setModal] = useState(false);
     const toggleModal = () => setModal(!modal);
@@ -28,31 +28,34 @@ const FilterTable = (props) => {
     const filteredItems = dataList.filter(
         item => filerData(item),
     );
-    
+
     useEffect(() => {
         setKeys(Object.keys(dataList[0] ? dataList[0] : {}));
         filters && filters.forEach(element => {
-            if (element.options){
+            if (element.options) {
                 element.options.forEach(option => {
-                    if (option.selected){
-                        setData(data => ({...data, [element.name]: option.value}));
+                    if (option.selected) {
+                        setData(data => ({ ...data, [element.name]: option.value }));
                     }
                 });
             }
         });
-    } , [dataList]);    
+    }, [dataList]);
 
     const subHeaderComponentMemo = React.useMemo(() => {
-		const handleClear = () => {
-			if (filterText) {
-				setResetPaginationToggle(!resetPaginationToggle);
-				setFilterText('');
-			}
-		};
-		return (
-			<FilterComponent onFilter={e => setFilterText(e.target.value)} onClear={handleClear} filterText={filterText} onMoreFilters={() => toggleModal()} hasFilters={filters && filters.length != 0}/>
-		);
-	}, [filterText, resetPaginationToggle]);
+        const handleClear = () => {
+            if (filterText) {
+                setResetPaginationToggle(!resetPaginationToggle);
+                setFilterText('');
+            }
+        };
+        return (
+            <div style={{ width: '100%', justifyContent: 'space-between', display: 'flex' }}>
+                {CustomActions ? <CustomActions data={filteredItems} /> : <div></div>}
+                <FilterComponent onFilter={e => setFilterText(e.target.value)} onClear={handleClear} filterText={filterText} onMoreFilters={() => toggleModal()} hasFilters={filters && filters.length != 0} />
+            </div>
+        );
+    }, [filteredItems, filterText, resetPaginationToggle]);
 
     const extraFilter = () => {
         toggleModal();
@@ -85,7 +88,7 @@ const FilterTable = (props) => {
                     data={filteredItems}
                     columns={tableColumns}
                     center={true}
-                    paginationResetDefaultPage={resetPaginationToggle} 
+                    paginationResetDefaultPage={resetPaginationToggle}
                     pagination
                     highlightOnHover
                     pointerOnHover
@@ -105,33 +108,33 @@ const FilterTable = (props) => {
                         {filters && filters.map((item, index) => (
                             <>
                                 {item.type != 'select' &&
-                                <FloatingInput 
-                                    key={'filter' + index} 
-                                    label={{label : item.label}} 
-                                    input={{ 
-                                        placeholder : item.label, 
-                                        onChange : (e) => setData(data => ({...data, [item.name]: e.target.value})),
-                                        name : item.name,
-                                        value : data[item.name],
-                                        type : item.type
-                                    }}
-                                />
+                                    <FloatingInput
+                                        key={'filter' + index}
+                                        label={{ label: item.label }}
+                                        input={{
+                                            placeholder: item.label,
+                                            onChange: (e) => setData(data => ({ ...data, [item.name]: e.target.value })),
+                                            name: item.name,
+                                            value: data[item.name],
+                                            type: item.type
+                                        }}
+                                    />
                                 }
 
                                 {item.type == 'select' &&
-                                <Select 
-                                    key={'filter' + index} 
-                                    label={{label : item.label}} 
-                                    input={{ 
-                                        placeholder : item.label, 
-                                        onChange : (e) => setData(data => ({...data, [item.name]: e ? e.value : null})),
-                                        name : item.name,
-                                        options : item.options,
-                                        defaultValue : item.options.filter(option => option.value == data[item.name])[0],
-                                        isClearable : true
-                                    }}
-                                    zIndex={2000 - index}
-                                />
+                                    <Select
+                                        key={'filter' + index}
+                                        label={{ label: item.label }}
+                                        input={{
+                                            placeholder: item.label,
+                                            onChange: (e) => setData(data => ({ ...data, [item.name]: e ? e.value : null })),
+                                            name: item.name,
+                                            options: item.options,
+                                            defaultValue: item.options.filter(option => option.value == data[item.name])[0],
+                                            isClearable: true
+                                        }}
+                                        zIndex={2000 - index}
+                                    />
                                 }
                             </>
                         ))}
@@ -139,7 +142,7 @@ const FilterTable = (props) => {
                 </ModalBody>
                 <ModalFooter>
                     <Btn attrBtn={{ color: 'secondary cancel-btn', onClick: resetFilters }} >Resetear</Btn>
-                    <Btn attrBtn={{ color: 'primary save-btn', onClick: extraFilter}}>Filtrar</Btn>
+                    <Btn attrBtn={{ color: 'primary save-btn', onClick: extraFilter }}>Filtrar</Btn>
                 </ModalFooter>
             </Modal>
         </>

@@ -85,10 +85,17 @@ class ProductController extends Controller
         return redirect()->route('prs')->with('message', 'Datos guardados correctamente.');
     }
 
-    public function changeStatus($id){
-        $product = TenantProduct::find($id);
-        $product->inner_active = $product->inner_active ? 0 : 1;
-        $product->save();
+    public function changeStatus(Request $request){
+        $ids = $request->input('ids');
+        $checkedValue = $request->input('checked');
+        TenantProduct::whereIn('id', $ids)->get()->each(function ($product) use ($checkedValue) {
+            if ($checkedValue !== null) {
+                $product->inner_active = (int) $checkedValue;
+            } else {
+                $product->inner_active = $product->inner_active ? 0 : 1;
+            }
+            $product->save();
+        });
         return redirect()->back()->with('message', 'Estado cambiado correctamente.');
     }
 

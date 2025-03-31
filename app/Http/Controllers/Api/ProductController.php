@@ -40,7 +40,7 @@ class ProductController extends ApiController
         $page = request()->input('page', 1);
         $limit = request()->input('rows', 10);
         
-        $data = TenantProduct::whereIn('id', ALLOWED_PRODUCTS)->where('active', 1)->skip(($page - 1) * $limit)->take($limit)->get()->map(function($pr){
+        $data = TenantProduct::whereIn('id', ALLOWED_PRODUCTS)->where('inner_active', 1)->skip(($page - 1) * $limit)->take($limit)->get()->map(function($pr){
             $pr->main_image = $pr->getMainImage();
             $pr->family_name = $pr->family->name ?? '';
             $pr->name = $pr->final_name;
@@ -79,6 +79,6 @@ class ProductController extends ApiController
             return $pr;
         });
 
-        return parent::returnList($data, $page, $limit, TenantProduct::whereIn('id', ALLOWED_PRODUCTS)->where('active', 1)->count());
+        return parent::returnList($data, $page, $limit, TenantProduct::whereIn('id', ALLOWED_PRODUCTS)->where('inner_active', 1)->count());
     }
 }

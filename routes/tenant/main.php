@@ -75,7 +75,7 @@ Route::middleware('check-permission:0,1')->group(function () {
     ///Products
     Route::resource('/prs', ProductController::class, ['names' => ['index' => 'prs']]);
     Route::post('/prs/list', [ProductController::class, 'list'])->name('prs.list');
-    Route::post('/prs/changeStatus/{cid}', [ProductController::class, 'changeStatus'])->name('prs.change.status');
+    Route::post('/prs/changeStatus', [ProductController::class, 'changeStatus'])->name('prs.change.status');
     Route::get('/prs/pdf/{id}', [ProductController::class, 'pdf'])->name('prs.pdf');
 
     ///Oreca

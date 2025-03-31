@@ -84,7 +84,6 @@ export default function Dashboard({ auth, users }) {
                                                     defaultValue: users.filter(option => option.value == data['uid'])[0],
                                                     isClearable: true
                                                 }}
-                                                zIndex={2000}
                                             />
                                         </Col>
                                     }

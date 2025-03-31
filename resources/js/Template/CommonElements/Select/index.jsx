@@ -2,11 +2,11 @@ import React from 'react';
 import Select from 'react-select'
 
 const FloatingSelect = (props) => {
-  let zIndex = props.zIndex ?? 1001;
+  let zIndex = props.zIndex ?? 3;
   return (
     <>
       <div className='form-floating mt-4 select-floating ms-1' style={{zIndex : zIndex }}>
-        <label style={{zIndex : 9}}>{...props.label.label ?? ''}</label>
+        <label>{...props.label.label ?? ''}</label>
         {props.readOnly 
         ?
         <div className='pt-1'>{props.input.defaultValue?.label ?? ''}</div>
