@@ -71,9 +71,15 @@ class ProductController extends Controller
         $this->validateForm($request, $id);
 
         $product = TenantProduct::find($request->id);
-        $product->fill($request->except(['id']));
+        $is_extra = $request->is_extra;
+        $product->fill($request->except(['id', 'is_extra']));
         $product->inner_prices = json_encode($request->input('inner_prices'));
         $product->inner_active = $request->input('inner_active') ? 1 : 0;
+        if($is_extra) {
+            $product->inner_extras = json_encode($request->input('inner_extras'));
+        } else {
+            $product->inner_extras = "";
+        }
         $product->save();
 
         TenantProductAttribute::where('product_id', $product->id)->update(['inner_active' => 0]);

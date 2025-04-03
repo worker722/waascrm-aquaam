@@ -24,12 +24,15 @@ class TenantProduct extends Product
         'inner_stock_max',
         'inner_active',
         'inner_model',
+        'inner_extras',
     ];
 
     protected $appends = [
         'final_name',
         'final_model',
-        'prices'
+        'prices',
+        'is_extras',
+        'extras',
     ];
 
     public function getFinalNameAttribute(){
@@ -45,6 +48,14 @@ class TenantProduct extends Product
         return json_decode($this->inner_prices, true);
     }
 
+    public function getIsExtrasAttribute() {
+        $extras = json_decode($this->inner_extras, true);
+        return is_array($extras) && count($extras) > 1;
+    }
+
+    public function getExtrasAttribute(){
+        return json_decode($this->inner_extras, true) ?? [];
+    }
     public function tenantAttributes()
     {
         return $this->hasMany(TenantProductAttribute::class, 'product_id')->where('inner_active', 1);
