@@ -59,8 +59,8 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
         setData({ ...data, inner_extras: [...data.inner_extras, { label: '', price: 0, desc: '' }] })
     }
     const handleRemoveExtra = (i) => {
-        let extra = data.inner_extras;
-        extra.splice(i, 1);
+        let extras = data.inner_extras;
+        extras.splice(i, 1);
         setData(data => ({ ...data, ['inner_extras']: extras }))
     }
     const handleChangeExtras = (e, i) => {
