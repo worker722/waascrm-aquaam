@@ -1,14 +1,12 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect } from "react";
 import { Breadcrumbs, Btn } from "./../../../Template/AbstractElements";
 import AuthenticatedLayout from '@/Template/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
-
 import FloatingInput from '@/Template/CommonElements/FloatingInput';
-import FileManager from '@/Template/Components/FileManager';
-import Select from '@/Template/CommonElements/Select';
 import Switch from '@/Template/CommonElements/Switch';
-import { Form, Card, CardBody, CardFooter, Row, Col, Nav, NavItem, NavLink, TabContent, TabPane, CardHeader } from 'reactstrap';
-import { type } from "world-map-geojson";
+import { Form, Card, CardBody, CardFooter, Row, Col } from 'reactstrap';
+import { Plus, Trash2 } from 'react-feather';
+import { toast } from 'react-toastify';
 
 export default function ProductForm({ auth, title, product, familyName, dues, attributes }) {
 
@@ -21,8 +19,12 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
         inner_stock_max: product.inner_stock_max,
         inner_active: product.inner_active,
         inner_model: product.inner_model,
-        is_extra: product.is_extra,
-        inner_extras: product.extras || [],
+        is_extras: product.is_extras,
+        inner_extras: product.extras ||
+            [
+                { label: 'ENFRIADOR', price: 0, desc: '' },
+                { label: 'GRIFO 3 VIAS', price: 0, desc: '' },
+            ],
         attributes: [],
     });
 
@@ -53,6 +55,22 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
             [key]: value,
         }))
     }
+    const handleAddExtra = () => {
+        setData({ ...data, inner_extras: [...data.inner_extras, { label: '', price: 0, desc: '' }] })
+    }
+    const handleRemoveExtra = (i) => {
+        let extra = data.inner_extras;
+        extra.splice(i, 1);
+        setData(data => ({ ...data, ['inner_extras']: extras }))
+    }
+    const handleChangeExtras = (e, i) => {
+        const key = e.target.name;
+        const value = e.target.value;
+        let extras = data.inner_extras;
+        console.log(key, value, extras)
+        extras[i] = { ...extras[i], [key]: value };
+        setData(data => ({ ...data, ['inner_extras']: extras }))
+    }
 
     const getPrice = (key) => {
         let prices = data.inner_prices;
@@ -78,20 +96,6 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
     }
 
 
-    const getExtra = (key) => {
-        return data.inner_extras.find(item => item.key == key)?.value;
-    }
-    const handleChangeExtras = (e) => {
-        const key = e.target.name;
-        let extras = data.inner_extras;// [{key:value}]
-        const idx = extras.findIndex(item => item.key == key);
-
-        if (idx >= 0) extras[idx].value = e.target.value
-        else extras.push({ key: key, value: e.target.value });
-
-        setData(data => ({ ...data, ['inner_extras']: extras }))
-    }
-
     const handleChangeSwitch = (key) => {
         setData(key, !data[key]);
     }
@@ -106,7 +110,18 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
     }
 
     const saveForm = async () => {
-        if (data.is_extra && data.inner_extras.length < 4) return;
+        if (data.is_extras) {
+            if (data.inner_extras.length < 1) {
+                return toast.error('No se puede guardar el producto sin extras');
+            }
+            for (let i = 0; i < data.inner_extras.length; i++) {
+                const extra = data.inner_extras[i];
+                if (!(extra.price > 0) || !extra.desc || !extra.label) {
+                    return toast.error('Por favor, ponga la información correcta para los extras.');
+                }
+
+            }
+        }
         post(route('prs.store'));
     };
 
@@ -264,30 +279,78 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
                                 </Col>
                             </Row>
                             <h6 className="mt-4 ms-1">Extras</h6>
-                            <Switch
-                                label={"Extras"}
-                                input={{ onChange: () => handleChangeSwitch('is_extra'), name: 'is_extra', checked: data.is_extra }}
-                                errors={errors.is_extra}
-                            />
-                            {data.is_extra &&
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Switch
+                                    label={"Extras"}
+                                    input={{ onChange: () => handleChangeSwitch('is_extras'), name: 'is_extras', checked: data.is_extras }}
+                                    errors={errors.is_extras}
+                                />
+                                {data.is_extras &&
+                                    <div
+                                        onClick={handleAddExtra}
+                                        style={{
+                                            width: '26px',
+                                            height: '26px',
+                                            borderRadius: '50%',
+                                            backgroundColor: '#1e88e5',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer'
+                                        }}
+                                        className="mt-3"
+                                    >
+                                        <Plus size={20} color="white" />
+                                    </div>
+                                }
+                            </div>
+                            {data.is_extras &&
                                 <Row>
-                                    <Col xs='6' md='6' key={'cooler-extras'}>
-                                        <p>ENFRIADOR</p>
-                                        <FloatingInput
-                                            label={{ label: "Price" }}
-                                            input={{ placeholder: "X €", onChange: handleChangeExtras, name: 'cooler_price', value: getExtra('cooler_price'), type: 'number' }}
-                                            errors={errors.inner_extras}
-                                        />
-                                        <FloatingInput
-                                            label={{ label: "DESCRIPCIÓN EXTRA DE ENFRIADOR" }}
-                                            input={{
-                                                as: "textarea", onChange: handleChangeExtras, name: 'cooler_description', value: getExtra('cooler_description'), type: 'text',
-                                                style: { height: "300px" }
-                                            }}
-                                            errors={errors.inner_extras}
-                                        />
-                                    </Col>
-                                    <Col xs='6' md='6' key={'tabs3way-extras'}>
+                                    {data.inner_extras.map((extra, index) => (
+                                        <Col xs='6' md='6' key={`extras-${index}`}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span>{extra.label || 'UNKNOWN'}</span>
+                                                <div style={{ cursor: 'pointer' }}
+                                                    onClick={() => handleRemoveExtra(index)}>
+                                                    <Trash2 size={20} color="red" />
+                                                </div>
+                                            </div>
+                                            <FloatingInput
+                                                label={{ label: "etiqueta" }}
+                                                input={{ placeholder: "title", onChange: e => handleChangeExtras(e, index), name: 'label', value: extra.label, type: 'text' }}
+                                            />
+                                            <FloatingInput
+                                                label={{ label: "Precio" }}
+                                                input={{ placeholder: "X €", onChange: e => handleChangeExtras(e, index), name: 'price', value: extra.price, type: 'number' }}
+                                            />
+                                            <FloatingInput
+                                                label={{ label: "DESCRIPCIÓN" }}
+                                                input={{
+                                                    as: "textarea", onChange: e => handleChangeExtras(e, index), name: 'desc', value: extra.desc, type: 'text',
+                                                    style: { height: "300px" }
+                                                }}
+                                            />
+                                        </Col>
+                                    ))
+                                    }
+                                    {/*
+                                        <Col xs='6' md='6' key={'cooler-extras'}>
+                                            <p>ENFRIADOR</p>
+                                            <FloatingInput
+                                                label={{ label: "Price" }}
+                                                input={{ placeholder: "X €", onChange: handleChangeExtras, name: 'cooler_price', value: getExtra('cooler_price'), type: 'number' }}
+                                                errors={errors.inner_extras}
+                                            />
+                                            <FloatingInput
+                                                label={{ label: "DESCRIPCIÓN EXTRA DE ENFRIADOR" }}
+                                                input={{
+                                                    as: "textarea", onChange: handleChangeExtras, name: 'cooler_description', value: getExtra('cooler_description'), type: 'text',
+                                                    style: { height: "300px" }
+                                                }}
+                                                errors={errors.inner_extras}
+                                            />
+                                        </Col>
+                                         <Col xs='6' md='6' key={'tabs3way-extras'}>
                                         <p>GRIFO 3 VIAS</p>
                                         <FloatingInput
                                             label={{ label: "Price" }}
@@ -302,7 +365,7 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
                                             }}
                                             errors={errors.inner_extras}
                                         />
-                                    </Col>
+                                    </Col> */}
                                 </Row>
                             }
 
