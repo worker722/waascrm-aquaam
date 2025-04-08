@@ -1,6 +1,7 @@
 <?php
 use App\Helpers\Lerph;
 use App\Http\Controllers\Tenant\AddressController;
+use App\Http\Controllers\Tenant\BrandsController;
 use App\Http\Controllers\Tenant\BudgetController;
 use App\Http\Controllers\Tenant\CalendarController;
 use App\Http\Controllers\Tenant\CatalogController;
@@ -71,6 +72,9 @@ Route::middleware('check-permission:0,1')->group(function () {
     Route::resource('/materials', MaterialController::class, ['names' => ['index' => 'materials']]);
     Route::post('/materials/list', [MaterialController::class, 'list'])->name('materials.list');
     Route::post('/materials/changeStatus/{cid}', [MaterialController::class, 'changeStatus'])->name('materials.change.status');
+
+    ///Brands
+    Route::resource('/brands', BrandsController::class, ['names' => ['index' => 'brand']]);
 
     ///Products
     Route::resource('/prs', ProductController::class, ['names' => ['index' => 'prs']]);

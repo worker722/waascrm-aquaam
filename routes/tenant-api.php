@@ -3,7 +3,7 @@
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProposalController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\BrandController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -27,6 +27,7 @@ Route::name('api.')->prefix('api/v1')->middleware([
 
     //Products
     Route::get('product', [ProductController::class, 'list']);
+    Route::get('brands', [BrandController::class, 'list']);
 
     //Clients
     Route::resource('client', ClientController::class)->only(['index', 'show', 'store', 'update']);

@@ -542,6 +542,7 @@ export const MENUITEMS_TENANT = [
 		Items: [
 			{ path: `/company`, icon: 'file', type: 'link', active: false, title: 'Datos', rols : [0,1] },
       { path: `/users`, icon: 'user', type: 'link', active: false, title: 'Usuarios', rols : [0,1] },
+      { path: `/brands`, icon: 'widget', type: 'link', active: false, title: 'Marcas', rols : [0,1] },
       { path: `/prs`, icon: 'widget', type: 'link', active: false, title: 'Productos', rols : [0,1] },
       { path: `/materials`, icon: 'board', type: 'link', active: false, title: 'Materiales', rols : [0,1] },
 			{
