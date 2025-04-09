@@ -18,7 +18,7 @@ class BrandsController extends Controller
 
         return Inertia::render('Tenant/Brands/BrandsForm', [
             'title' => 'Marcas',
-            'brands' => Brands::all(),
+            'brands' => Brands::orderBy('created_at')->get(),
         ]);
     }
 
@@ -35,24 +35,22 @@ class BrandsController extends Controller
      */
     public function store(Request $request)
     {
-        return redirect()->route('brand')->with('message', 'Datos guardados correctamente.');
-        //
         $data = array_merge($request->watermarks ?? [], $request->aquaservice ?? []);
 
         $brandsInRequest = [];
 
         foreach ($data as $item) {
-            $brandsInRequest[] = $item['brand'];
-
+            if (!empty($item['id'])) $brandsInRequest[] = $item['id'];
             Brands::updateOrCreate(
-                ['brand' => $item['brand']],
+                ['id' => $item['id']],
                 [
+                    'brand' => $item['brand'],
                     'type' => $item['type'],
                     'prices' => $item['prices']
                 ]
             );
         }
-        Brands::whereNotIn('brand', $brandsInRequest)->delete();
+        Brands::whereNotIn('id', $brandsInRequest)->delete();
         return redirect()->route('brand')->with('message', 'Datos guardados correctamente.');
     }
     /**
