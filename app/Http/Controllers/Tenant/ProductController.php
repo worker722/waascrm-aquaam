@@ -78,7 +78,7 @@ class ProductController extends Controller
         if($is_extras) {
             $product->inner_extras = json_encode($request->input('inner_extras'));
         } else {
-            $product->inner_extras = "";
+            $product->inner_extras = null;
         }
         $product->save();
 
