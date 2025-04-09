@@ -1275,7 +1275,7 @@
             display: none;
           }
           &.close_icon {
-            width: auto;
+            width: 90px;
             transition: all 0.3s ease;
             .badge {
               opacity: 0;
@@ -1315,7 +1315,12 @@
 
             .logo-icon-wrapper {
               text-align: right;
-              display: block;
+              width: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              padding-bottom: 20px;
+              padding-top: 30px;
             }
 
             &:hover {
