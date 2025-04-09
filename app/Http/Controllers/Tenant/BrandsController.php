@@ -40,15 +40,15 @@ class BrandsController extends Controller
         $brandsInRequest = [];
 
         foreach ($data as $item) {
-            if (!empty($item['id'])) $brandsInRequest[] = $item['id'];
-            Brands::updateOrCreate(
-                ['id' => $item['id']],
+            $brand = Brands::updateOrCreate(
+                ['id' => $item['id'] ?? null],
                 [
                     'brand' => $item['brand'],
                     'type' => $item['type'],
                     'prices' => $item['prices']
                 ]
             );
+            $brandsInRequest[] = $brand->id;
         }
         Brands::whereNotIn('id', $brandsInRequest)->delete();
         return redirect()->route('brand')->with('message', 'Datos guardados correctamente.');

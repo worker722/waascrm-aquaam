@@ -17,7 +17,6 @@ export default function BrandsForm({ auth, title, brands }) {
     useEffect(() => {
         let waters = brands.filter(item => item.type == 0);
         let aquaservice = brands.filter(item => item.type == 1);
-        console.log(brands, waters, aquaservice)
         setData(data => ({ ...data, ['watermarks']: waters }));
         setData(data => ({ ...data, ['aquaservice']: aquaservice }));
     }, [brands]);

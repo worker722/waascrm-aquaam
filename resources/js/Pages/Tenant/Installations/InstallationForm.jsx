@@ -38,8 +38,6 @@ export default function InstallationForm({ auth, title, installation, allMateria
         parts : parts !== null ? parts : [],
     });
 
-    console.log(installation);
-    
     const menuData = [
         {id: 1, title: 'Instalación', icon: '', hide : false},
         {id: 2, title: 'Materiales', icon: '', hide : installation.is_maintenance},
