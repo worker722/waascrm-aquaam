@@ -23,7 +23,11 @@ const UserHeader = () => {
   }, []);
 
   const Logout = () => {
-    router.post('/logout');
+    const mainDomain = 'waascrm.com';
+    let hostname = window.location.hostname;
+    hostname = hostname.startsWith('www.') ? hostname.slice(4) : hostname;
+    const isSubdomain = hostname !== mainDomain && hostname.endsWith(`.${mainDomain}`);
+    router.post(isSubdomain ? '/logout' : '/central-logout');
   };
 
   const UserMenuRedirect = (redirect) => {
@@ -37,14 +41,14 @@ const UserHeader = () => {
           attrImage={{
             className: 'b-r-10 m-0',
             src: `${auth0_profile}`,
-            style: {height: '35px' }, 
+            style: { height: '35px' },
             alt: '',
           }}
         />
         <div className='media-body'>
           <span>{actualUser.name}</span>
           <P attrPara={{ className: 'mb-0 font-roboto' }}>
-          {actualUser.rol_name} <i className='middle fa fa-angle-down'></i>
+            {actualUser.rol_name} <i className='middle fa fa-angle-down'></i>
           </P>
         </div>
       </div>
@@ -53,7 +57,7 @@ const UserHeader = () => {
           <User />
           <Link href={route('users.profile')}>
             <span>Mis Datos </span>
-          </Link> 
+          </Link>
         </LI>
         <LI attrLI={{ onClick: Logout }}>
           <LogIn />

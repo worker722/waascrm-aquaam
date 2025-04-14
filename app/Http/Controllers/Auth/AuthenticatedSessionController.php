@@ -55,13 +55,6 @@ class AuthenticatedSessionController extends Controller
         } catch (\Exception $e) {
             
         }
-        $host = request()->getHost();
-        $mainDomains = ['waascrm.com', 'www.waascrm.com'];
-
-        if (in_array($host, $mainDomains)) {
-            return redirect('/central-login');
-        }
-        
         return redirect('/');
     }
 }
