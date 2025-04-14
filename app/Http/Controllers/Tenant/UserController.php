@@ -105,8 +105,9 @@ class UserController extends Controller
         $rol = $request->input('rol_id');
         $maxs = json_decode(COMPANY->users, true);
         $actual = TenantUser::where('rol_id', $rol)->count() + 1; ///TODO revisar
-        $m = isset($maxs[$rol - 1]) && !empty($maxs[$rol - 1]) ? $maxs[$rol - 1] : 0;
-        if (($uu && $uu->rol_id != $rol || !$uu) && $m < $actual && !$profile) throw ValidationException::withMessages(['rol_id' => 'Ha alcanzado el máximo de usuarios para este rol.']);
+        $m = isset($maxs[$rol - 1]) && !empty($maxs[$rol - 1]) ? intval($maxs[$rol - 1]) : 0;
+        if (($uu && $uu->rol_id != $rol || !$uu) && $m > 0 && $m < $actual && !$profile) 
+            throw ValidationException::withMessages(['rol_id' => 'Ha alcanzado el máximo de usuarios para este rol.']);
 
         return $request->validate([
             'name' => 'required|max:100',

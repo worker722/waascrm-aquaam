@@ -10,6 +10,9 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::get('/', function () {
+    return redirect('/central-dashboard');
+});
 Route::get('/central-dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('/testMail', [DashboardController::class, 'testMail'])->name('testMail');
@@ -27,6 +30,7 @@ Route::post('/catalog/{type}/updateOrder', [AdminCatalogController::class, 'upda
 Route::resource('/products', ProductsController::class, ['names' => ['index' => 'products']]);
 Route::post('/products/list', [ProductsController::class, 'list'])->name('products.list');
 Route::get('/products/pdf/{pid}', [ProductsController::class, 'pdf'])->name('products.central.pdf');
+Route::get('/products/pdfs/{fid}', [ProductsController::class, 'pdfs'])->name('products.central.pdfs');
 
 ///Spare Parts
 Route::resource('/spare-parts', SparePartsController::class, 

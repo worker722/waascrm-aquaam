@@ -9,15 +9,17 @@ import Edit from '@/Template/CommonElements/Edit';
 import Trash from '@/Template/CommonElements/Trash';
 import AddBtn from '@/Template/CommonElements/AddBtn';
 import MainDataContext from '@/Template/_helper/MainData';
-import { Check, X }  from 'react-feather';
+import { Check, X } from 'react-feather';
 import Icon from "@/Template/CommonElements/Icon";
 import FilterTable from "@/Template/Components/FilterTable";
 
-export default function ProductList({ auth, title}) {
+export default function ProductList({ auth, title, filters }) {
     const [dataList, setDataList] = useState([]);
-    const { handleDelete, deleteCounter } = useContext(MainDataContext);  
+    const { handleDelete, deleteCounter } = useContext(MainDataContext);
+    const [selectedFamily, setselectedFamily] = useState(0)
 
     const getProducts = async (d) => {
+        setselectedFamily(d?.family || 0);
         const response = await axios.post(route('products.list'), d);
         setDataList(response.data);
     }
@@ -33,7 +35,7 @@ export default function ProductList({ auth, title}) {
                 return (
                     <>
                         {row['active'] ? <Check color="green" size={15} /> : <X color="red" size={15} />}
-                        <span className="ms-1" style={{position: 'relative', top: '-4px'}}>{row['model']}</span>
+                        <span className="ms-1" style={{ position: 'relative', top: '-4px' }}>{row['model']}</span>
                     </>
                 )
             },
@@ -67,10 +69,10 @@ export default function ProductList({ auth, title}) {
                 return (
                     <>
                         <a href={route('products.central.pdf', row['id'])} target="_blank" className="me-1">
-                            <Icon icon="File" id={'ficha' + row['id']} tooltip="Ficha Técnica"/>
+                            <Icon icon="File" id={'ficha' + row['id']} tooltip="Ficha Técnica" />
                         </a>
-                        <Edit onClick={() => router.visit(route('products.edit', row['id']))} id={'edit-' + row['id']}/>
-                        <Trash onClick={() => handleDelete(route('products.destroy', row['id']))} id={'delete-' + row['id']}/>
+                        <Edit onClick={() => router.visit(route('products.edit', row['id']))} id={'edit-' + row['id']} />
+                        <Trash onClick={() => handleDelete(route('products.destroy', row['id']))} id={'delete-' + row['id']} />
                     </>
                 )
             },
@@ -87,15 +89,15 @@ export default function ProductList({ auth, title}) {
                 <Breadcrumbs mainTitle={title} title={title} />
 
                 <div className="d-flex flex-row-reverse mb-2">
-                    <a href={route('products.central.pdf', 0)} target="_blank" className="me-1">
-                        <Btn attrBtn={{ color: 'primary', className : 'btn-sm'}}>Descargar Catalogo</Btn>
+                    <a href={route('products.central.pdfs', selectedFamily)} target="_blank" className="me-1">
+                        <Btn attrBtn={{ color: 'primary', className: 'btn-sm' }}>Descargar Catalogo</Btn>
                     </a>
                 </div>
 
                 <FilterTable
                     dataList={dataList}
                     tableColumns={tableColumns}
-                    filters={[]}
+                    filters={filters}
                     getList={(d) => getProducts(d)}
                 />
 

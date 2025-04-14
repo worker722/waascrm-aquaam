@@ -20,27 +20,35 @@ class ProductsController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Central/Products/ProductList', ['title' => 'Productos']);
+        $filters = [];
+        $filters[] = ['label' => 'Familia', 'options' => AdminCatalog::select('name as label', 'id as value')->where('type', 5)->get(), 'type' => 'select', 'name' => 'family'];
+
+        return Inertia::render('Central/Products/ProductList', [
+            'title' => 'Productos',
+            'filters' => $filters
+        ]);
     }
 
     public function list(Request $request)
     {
-        $data = Product::get()->map(function($pr){
+        $query = Product::select('*');
+        if ($request->has('family') && $request->input('family') != null) $query->where('family_id', $request->input('family'));
+        $data = $query->get()->map(function ($pr) {
             $pr->family_name = $pr->family ? $pr->family->name : '';
             return $pr;
         });
-        
+
         return $data;
     }
 
     public function create()
     {
-        $parts = SparePart::select('name as label', 'id as value', 'type_id', 'reference')->orderBy('type_id')->get()->map(function($part){
+        $parts = SparePart::select('name as label', 'id as value', 'type_id', 'reference')->orderBy('type_id')->get()->map(function ($part) {
             $t = $part->type->name ?? '';
-            if (!empty($t)) $part->label = $part->reference.' - '.$t .' > '.$part->label;
+            if (!empty($t)) $part->label = $part->reference . ' - ' . $t . ' > ' . $part->label;
             return $part;
         });
-        
+
         return Inertia::render('Central/Products/ProductForm', [
             'title' => 'Agregar Producto',
             'product' => new Product(),
@@ -61,9 +69,9 @@ class ProductsController extends Controller
     public function edit(Product $product)
     {
         $catalog = AdminCatalog::find($product->category_id);
-        $parts = SparePart::select('name as label', 'id as value', 'type_id', 'reference')->orderBy('type_id')->get()->map(function($part){
+        $parts = SparePart::select('name as label', 'id as value', 'type_id', 'reference')->orderBy('type_id')->get()->map(function ($part) {
             $t = $part->type->name ?? '';
-            if (!empty($t)) $part->label = $part->reference.' - '.$t .' > '.$part->label;
+            if (!empty($t)) $part->label = $part->reference . ' - ' . $t . ' > ' . $part->label;
             return $part;
         });
 
@@ -91,7 +99,8 @@ class ProductsController extends Controller
         return $this->upsertData($request, $id);
     }
 
-    public function upsertData($request, $id){
+    public function upsertData($request, $id)
+    {
         $this->validateForm($request, $id);
 
         if (empty($request->id)) $product = new Product($request->except(['id']));
@@ -112,7 +121,7 @@ class ProductsController extends Controller
         $this->upsertFiles($request, $product, $product->videos, 'videos', 2);
         $this->upsertFiles($request, $product, $product->documents, 'documents', 3);
 
-        return redirect()->route('products')->with('message', 'Datos guardados correctamente.');        
+        return redirect()->route('products')->with('message', 'Datos guardados correctamente.');
     }
 
     public function destroy(Product $product)
@@ -121,21 +130,24 @@ class ProductsController extends Controller
         return redirect()->back()->with('message', 'Producto borrado correctamente.');
     }
 
-    private function validateForm(Request $request, $id){
+    private function validateForm(Request $request, $id)
+    {
         //if (empty($id)) $id = 'NULL';
-        return $request->validate([
-            'model' => 'required|max:100|unique:products,model,'.$id.',id,deleted_at,NULL',
-            'name' => 'required|max:200',
-            'description' => 'max:500',
-            //'code' => 'required|max:100|unique:products,code,'.$id
-        ],
-        [],
-        [
-            'model' => 'Modelo',
-            'name' => 'Nombre',
-            'description' => 'Descripción',
-            'code' => 'Código'
-        ]);
+        return $request->validate(
+            [
+                'model' => 'required|max:100|unique:products,model,' . $id . ',id,deleted_at,NULL',
+                'name' => 'required|max:200',
+                'description' => 'max:500',
+                //'code' => 'required|max:100|unique:products,code,'.$id
+            ],
+            [],
+            [
+                'model' => 'Modelo',
+                'name' => 'Nombre',
+                'description' => 'Descripción',
+                'code' => 'Código'
+            ]
+        );
     }
 
     private function upsertAttributes($request, $product)
@@ -144,8 +156,8 @@ class ProductsController extends Controller
 
         $tenants = Tenant::all();
 
-        foreach ($tenants as $tenant){
-            $tenant->run(function ($tenant) use ($product, $request){
+        foreach ($tenants as $tenant) {
+            $tenant->run(function ($tenant) use ($product, $request) {
                 ProductAttr::where('product_id', $product->id)->delete();
             });
         }
@@ -170,9 +182,9 @@ class ProductsController extends Controller
     private function upsertFiles($request, $product, $savedFiles, $key, $type)
     {
         $uploaded = $request->input($key, []);
-        foreach ($uploaded as $n => $file){
+        foreach ($uploaded as $n => $file) {
             $saved = false;
-            foreach ($savedFiles as $sf){
+            foreach ($savedFiles as $sf) {
                 if ($sf->id == $file['id']) {
                     $saved = true;
                     $sf->order = $n;
@@ -181,7 +193,7 @@ class ProductsController extends Controller
                     $sf->save();
                 }
             }
-            if (!$saved){
+            if (!$saved) {
                 $product->files()->create([
                     'type' => $type,
                     'file' => $file['file'],
@@ -195,10 +207,12 @@ class ProductsController extends Controller
                 Storage::disk('tmp')->delete($file['file']);
             }
         }
-        foreach ($savedFiles as $sf){
+        foreach ($savedFiles as $sf) {
             $deleted = true;
-            foreach ($uploaded as $file){if ($file['id'] == $sf->id) $deleted = false;}
-            if ($deleted){
+            foreach ($uploaded as $file) {
+                if ($file['id'] == $sf->id) $deleted = false;
+            }
+            if ($deleted) {
                 $sf->delete();
 
                 Storage::disk('products')->delete($product->id . '/' . $sf->file);
@@ -206,17 +220,31 @@ class ProductsController extends Controller
         }
     }
 
-    public function pdf($id){
+    public function generatePDF($id, $type) //$type => 0: by product id, 1: by family id 
+    {
         set_time_limit(300);
         $data = [];
-        $product = Product::find($id);
-        if ($product) $products[] = $product;
-        else $products = Product::all();
+        if($type == 0) {
+            $product[] = Product::find($id);
+            if ($product) $products[] = $product;
+            else $products = Product::all();
+        } else {
+            $products = Product::where(['family_id' => $id])->get();
+        }
 
         foreach ($products as $product) $data[] = Lerph::getTechPdf($product);
 
         $pdf = Pdf::loadView('pdfs.pdf1', ['data' => $data]);
 
         return $pdf->stream('pdf1.pdf');
+    }
+    public function pdf($id)
+    {
+        return $this->generatePDF($id, 0);
+    }
+
+    public function pdfs($id)
+    {
+        return $this->generatePDF($id, 1);
     }
 }

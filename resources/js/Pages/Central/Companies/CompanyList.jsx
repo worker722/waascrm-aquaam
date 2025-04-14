@@ -9,12 +9,12 @@ import Edit from '@/Template/CommonElements/Edit';
 import Trash from '@/Template/CommonElements/Trash';
 import AddBtn from '@/Template/CommonElements/AddBtn';
 import MainDataContext from '@/Template/_helper/MainData';
-import { Check, X }  from 'react-feather';
+import { Check, X } from 'react-feather';
 import { Badge } from 'reactstrap';
 import { Image } from "react-bootstrap";
 import FilterTable from "@/Template/Components/FilterTable";
 
-export default function CompanyList({ auth, title}) {
+export default function CompanyList({ auth, title }) {
     const [dataList, setDataList] = useState([]);
     const { handleDelete, deleteCounter } = useContext(MainDataContext);
     const [tooltip, setTooltip] = useState(false);
@@ -39,7 +39,7 @@ export default function CompanyList({ auth, title}) {
             name: 'Logo',
             selector: row => {
                 return (
-                    <Image height={50} src={row['logo_url']} rounded/>
+                    <Image height={50} src={row['logo_url']} rounded />
                 )
             },
             sortable: true,
@@ -52,7 +52,7 @@ export default function CompanyList({ auth, title}) {
                 return (
                     <>
                         {row['status'] == 1 ? <Check color="green" size={15} /> : <X color="red" size={15} />}
-                        <span style={{position: 'relative', top: '-2px'}}>{row['domain']}</span>
+                        <span style={{ position: 'relative', top: '-2px' }}>{row['domain']}</span>
                     </>
                 )
             },
@@ -65,26 +65,28 @@ export default function CompanyList({ auth, title}) {
             selector: row => row['name'],
             sortable: true,
             center: false,
+            maxWidth: "150px"
         },
         {
             name: 'Email',
             selector: row => row['email'],
             sortable: true,
             center: false,
+            maxWidth: "200px"
         },
         {
             name: 'Productos',
             selector: row => {
                 return (
-                    <>
+                    <div className="flex flex-wrap" style={{ whiteSpace: 'pre-wrap' }}>
                         {row['products'] ? row['products'].map((item, index) => {
-                            return <Badge key={index} color="primary">{item['name']}</Badge>
+                            return <Badge key={index} color="primary" style={{ margin: 2 }}>{item['name']}</Badge>
                         }) : null}
-                    </>
+                        <br />
+                    </div>
                 )
             },
             sortable: true,
-            center: false,
         },
         {
             name: 'Acciones',
@@ -92,16 +94,16 @@ export default function CompanyList({ auth, title}) {
                 return (
                     <>
                         <Fragment>
-                            {row['status'] !== 1 ? 
-                                <Check color="green" size={20} id={'change-' + row['id']} onClick={() => enableDisableCompany(row['id'])}/> : 
-                                <X color="red" size={20} id={'change-' + row['id']} onClick={() => enableDisableCompany(row['id'])}/>
+                            {row['status'] !== 1 ?
+                                <Check color="green" size={20} id={'change-' + row['id']} onClick={() => enableDisableCompany(row['id'])} /> :
+                                <X color="red" size={20} id={'change-' + row['id']} onClick={() => enableDisableCompany(row['id'])} />
                             }
-                            <ToolTip attrToolTip={{ placement:'left', isOpen:tooltip, target: 'change-' + row['id'], toggle:toggle }}>
+                            <ToolTip attrToolTip={{ placement: 'left', isOpen: tooltip, target: 'change-' + row['id'], toggle: toggle }}>
                                 {row['status'] === 1 ? 'Desactivar' : 'Activar'}
                             </ToolTip>
                         </Fragment>
-                        <Edit onClick={() => router.visit(route('companies.edit', row['id']))} id={'edit-' + row['id']}/>
-                        <Trash onClick={() => handleDelete(route('companies.destroy', row['id']))} id={'delete-' + row['id']}/>
+                        <Edit onClick={() => router.visit(route('companies.edit', row['id']))} id={'edit-' + row['id']} />
+                        <Trash onClick={() => handleDelete(route('companies.destroy', row['id']))} id={'delete-' + row['id']} />
                     </>
                 )
             },
@@ -123,7 +125,7 @@ export default function CompanyList({ auth, title}) {
                     filters={[]}
                     getList={(d) => getCompanies(d)}
                 />
-                
+
                 <AddBtn onClick={() => router.visit(route('companies.create'))} />
             </Fragment>
         </AuthenticatedLayout>
