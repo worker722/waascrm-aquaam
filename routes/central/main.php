@@ -10,7 +10,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/central-dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('/testMail', [DashboardController::class, 'testMail'])->name('testMail');
 

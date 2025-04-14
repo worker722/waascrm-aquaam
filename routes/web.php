@@ -17,3 +17,10 @@ Route::middleware([
 });
 
 require 'tenant.php';
+
+Route::get('/', function () {
+    $centralDomains = ['waascrm.com', 'www.waascrm.com'];
+    if (in_array(request()->getHost(), $centralDomains)) {
+        return redirect('/central-dashboard');
+    }
+});
