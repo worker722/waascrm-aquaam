@@ -18,12 +18,6 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::post('api/v1/client/webhook', [ClientController::class, 'webhook'])
-    ->middleware([
-        'validate-api',
-        InitializeTenancyByDomain::class,
-        PreventAccessFromCentralDomains::class,
-    ]);
 
 Route::name('api.')->prefix('api/v1')->middleware([
     'api',
@@ -38,7 +32,7 @@ Route::name('api.')->prefix('api/v1')->middleware([
 
     //Clients
     Route::resource('client', ClientController::class)->only(['index', 'show', 'store', 'update']);
-    
+    Route::post('client/webhook', [ClientController::class, 'webhook']);
     //Contacts
     Route::resource('contact', ClientController::class)->only(['index', 'show', 'store', 'update']);
 
