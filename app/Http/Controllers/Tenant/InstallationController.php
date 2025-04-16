@@ -370,8 +370,11 @@ class InstallationController extends Controller
                     'size' => $file['size']
                 ]);
 
-                Storage::disk('installations')->put(tenant('id').'/'.$installation->id . '/' . $file['file'], Storage::disk('tmp')->get($file['file']));
-                Storage::disk('tmp')->delete($file['file']);
+                if (Storage::disk('tmp')->exists($file['file'])) {
+                    $fileContents = Storage::disk('tmp')->get($file['file']);
+                    Storage::disk('installations')->put(tenant('id').'/'.$installation->id . '/' . $file['file'], $fileContents);
+                    Storage::disk('tmp')->delete($file['file']);
+                }
             }
         }
         foreach ($savedFiles as $sf){
@@ -379,7 +382,6 @@ class InstallationController extends Controller
             foreach ($uploaded as $file){if ($file['id'] == $sf->id) $deleted = false;}
             if ($deleted){
                 $sf->delete();
-
                 Storage::disk('installations')->delete(tenant('id').'/'.$installation->id . '/' . $sf->file);
             }
         }

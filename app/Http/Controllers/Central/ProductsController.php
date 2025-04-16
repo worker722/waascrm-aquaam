@@ -202,9 +202,11 @@ class ProductsController extends Controller
                     'order' => $n,
                     'image_type' => $file['image_type'] ?? 0
                 ]);
-
-                Storage::disk('products')->put($product->id . '/' . $file['file'], Storage::disk('tmp')->get($file['file']));
-                Storage::disk('tmp')->delete($file['file']);
+                if (Storage::disk('tmp')->exists($file['file'])) {
+                    $fileContents = Storage::disk('tmp')->get($file['file']);
+                    Storage::disk('products')->put($product->id . '/' . $file['file'], $fileContents);
+                    Storage::disk('tmp')->delete($file['file']);
+                }
             }
         }
         foreach ($savedFiles as $sf) {
