@@ -30,6 +30,7 @@ class Product extends Model
         'gas',
         'worktop',
         'predosing',
+        'install_type'
     ];
 
     protected static function boot()

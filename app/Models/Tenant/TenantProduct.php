@@ -25,6 +25,7 @@ class TenantProduct extends Product
         'inner_active',
         'inner_model',
         'inner_extras',
+        'install_type'
     ];
 
     protected $appends = [

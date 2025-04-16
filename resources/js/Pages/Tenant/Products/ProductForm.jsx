@@ -7,6 +7,13 @@ import Switch from '@/Template/CommonElements/Switch';
 import { Form, Card, CardBody, CardFooter, Row, Col } from 'reactstrap';
 import { Plus, Trash2 } from 'react-feather';
 import { toast } from 'react-toastify';
+import Select from '@/Template/CommonElements/Select';
+
+const INSTALL_TYPE_OPTIONS =  [
+    { value: '0', label: 'Ambos' },
+    { value: '1', label: 'Empresa' },
+    { value: '2', label: 'Hogar' },
+]
 
 export default function ProductForm({ auth, title, product, familyName, dues, attributes }) {
 
@@ -20,6 +27,7 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
         inner_active: product.inner_active,
         inner_model: product.inner_model,
         is_extras: product.is_extras,
+        install_type: product.install_type,
         inner_extras: product.extras ||
             [
                 { label: 'ENFRIADOR', price: 0, desc: '' },
@@ -50,6 +58,7 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
     const handleChange = (e) => {
         const key = e.target.name;
         const value = e.target.value;
+        console.log(key, value);
         setData(data => ({
             ...data,
             [key]: value,
@@ -98,6 +107,10 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
 
     const handleChangeSwitch = (key) => {
         setData(key, !data[key]);
+    }
+
+    const handleChangeSelect = (selected, e) => {
+        setData(data => ({ ...data, [e.name]: selected.value }))
     }
 
     const handleChangeSwitchAttr = (key) => {
@@ -229,6 +242,19 @@ export default function ProductForm({ auth, title, product, familyName, dues, at
                                         label={{ label: 'Stock Máximo' }}
                                         input={{ placeholder: 'Stock', onChange: handleChange, name: 'inner_stock_max', value: data.inner_stock_max, type: 'number' }}
                                         errors={errors.inner_stock_max}
+                                    />
+                                </Col>
+                                <Col xs='12' md='2'>
+                                    <Select
+                                        label={{ label: 'tipo de instalación' }}
+                                        input={{
+                                            placeholder: 'tipo de instalación',
+                                            onChange: handleChangeSelect,
+                                            name: 'install_type',
+                                            options: INSTALL_TYPE_OPTIONS,
+                                            defaultValue: INSTALL_TYPE_OPTIONS.find(item => item.value == data.install_type),
+                                        }}
+                                        errors={errors.install_type}
                                     />
                                 </Col>
                                 <Col xs='12' md='2'>
