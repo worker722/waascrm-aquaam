@@ -225,7 +225,7 @@ class ProductsController extends Controller
         set_time_limit(300);
         $data = [];
         if($type == 0) {
-            $product[] = Product::find($id);
+            $product = Product::find($id);
             if ($product) $products[] = $product;
             else $products = Product::all();
         } else {
