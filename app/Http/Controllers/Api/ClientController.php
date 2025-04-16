@@ -183,20 +183,20 @@ class ClientController extends ApiController
         Log::channel('webhook')->info('Webhook Received:', $request->all());
 
         $validator = Validator::make($request->all(), [
-            'form_fields.name' => 'required|string|max:255',
-            'form_fields.email' => 'required|email|max:255',
-            'form_fields.phone' => 'required|max:255',
-            'form_fields.notes' => 'required|string',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|max:255',
+            'notes' => 'required|string',
         ]);
     
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
         
-        $name = trim($request->form_fields['name']);
-        $email = $request->form_fields['email'];
-        $phone = $request->form_fields['phone'];
-        $notes = $request->form_fields['notes'];
+        $name = trim($request->name);
+        $email = $request->email;
+        $phone = $request->phone;
+        $notes = $request->notes;
         $company_name = "";
         $nameParts = explode(' ', $name, 2);
         $contact_name = $nameParts[0];
