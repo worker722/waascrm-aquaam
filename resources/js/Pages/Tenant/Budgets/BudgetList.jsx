@@ -9,7 +9,7 @@ import Edit from '@/Template/CommonElements/Edit';
 import Trash from '@/Template/CommonElements/Trash';
 import AddBtn from '@/Template/CommonElements/AddBtn';
 import MainDataContext from '@/Template/_helper/MainData';
-import { Eye, FileText, User, X, Check }  from 'react-feather';
+import { Eye, FileText, User, X, Check } from 'react-feather';
 import { Modal, ModalBody, ModalFooter, ModalHeader, Form, Badge, Row, Col } from "reactstrap";
 import FloatingInput from "@/Template/CommonElements/FloatingInput";
 import Select from '@/Template/CommonElements/Select';
@@ -17,7 +17,7 @@ import AddAddress from "@/Template/Components/AddAddress";
 import Icon from "@/Template/CommonElements/Icon";
 import FilterTable from "@/Template/Components/FilterTable";
 
-export default function BudgetList({ auth, title, cid, st}) {
+export default function BudgetList({ auth, title, cid, st }) {
     const [dataList, setDataList] = useState([]);
     const [detailList, setDetailList] = useState([]);
     const [addressList, setAddressList] = useState([]);
@@ -35,57 +35,59 @@ export default function BudgetList({ auth, title, cid, st}) {
     const toggleAddress = () => setModalAddress(!modalAddress);
 
 
-    const { data, setData, post, processing, errors, reset, clearErrors} = useForm({
-        id : 0,
-        reason : '',
-        detail_id : '',
-        addresses : [],
-    }); 
+    const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
+        id: 0,
+        reason: '',
+        detail_id: '',
+        addresses: [],
+    });
 
     const handleChange = (e) => {
-        setData(data => ({...data, [e.target.name]: e.target.value}));
+        setData(data => ({ ...data, [e.target.name]: e.target.value }));
     }
 
     const getBudgets = async (d) => {
-        const response = await axios.post(route('budgets.list', cid) + '?st=' + st, d); 
+        const response = await axios.post(route('budgets.list', cid) + '?st=' + st, d);
         setDataList(response.data);
     }
 
     const rejectBudget = async (id) => {
-        setData(data => ({...data, ['id']: id, ['reason']: ''}));
+        setData(data => ({ ...data, ['id']: id, ['reason']: '' }));
         toggleModal();
     }
 
     const acceptBudget = (id) => {
-        setData(data => ({...data, ['id']: id}));
+        setData(data => ({ ...data, ['id']: id }));
         getBudgetData(id);
     }
 
     const getBudgetData = async (id) => {
         const response = await axios.get(route('budgets.get', [cid, id]));
-        if (response.data){
+        if (response.data) {
             setDetailList(response.data.details);
             setProductsList(response.data.products);
             setAddressList(response.data.addresses);
             setSelectedOptionAddr(response.data.addresses[0] ?? null);
             toggleModalAccept();
 
-            response.data.products.forEach((product, index) => {
-                setData(data => ({...data, ['address-' + product.id + '-' + index]: response.data.addresses[0].value}));
-            })
+            if (response.data.addresses.length > 0) {
+                response.data.products.forEach((product, index) => {
+                    setData(data => ({ ...data, ['address-' + product.id + '-' + index]: response.data.addresses[0].value }));
+                })
+            }
         }
     }
 
     const addAddress = async (address) => {
         address['client_id'] = cid;
         const response = await axios.post(route('address.store'), address);
-        if (response.data){
+        if (response.data) {
             let addresses = addressList
-            addresses.push({value: response.data.id, label: response.data.full_address});
+            addresses.push({ value: response.data.id, label: response.data.full_address });
             setAddressList(addresses);
             toggleAddress();
         }
-        
+
     }
 
     const saveForm = async () => {
@@ -120,12 +122,12 @@ export default function BudgetList({ auth, title, cid, st}) {
 
     const setSelected = (selected, evt) => {
         setSelectedOptionDet(selected);
-        setData(data => ({...data, [evt.name]: selected.value}))
+        setData(data => ({ ...data, [evt.name]: selected.value }))
     }
 
     const setSelectedAddr = (selected, evt) => {
         setSelectedOptionAddr(selected);
-        setData(data => ({...data, [evt.name]: selected.value}))
+        setData(data => ({ ...data, [evt.name]: selected.value }))
     }
 
     useEffect(() => {
@@ -144,8 +146,8 @@ export default function BudgetList({ auth, title, cid, st}) {
             selector: row => {
                 return (
                     <>
-                    <Badge color={ row['status'] == 2 ? 'danger' : (row['status'] == 1 ? 'success' : 'info') }>{row['status_name']}</Badge>
-                    {row['status'] == 2 && <small className="mt-1 d-block">Motivo: {row['rejection_reason']}</small>}
+                        <Badge color={row['status'] == 2 ? 'danger' : (row['status'] == 1 ? 'success' : 'info')}>{row['status_name']}</Badge>
+                        {row['status'] == 2 && <small className="mt-1 d-block">Motivo: {row['rejection_reason']}</small>}
                     </>
                 )
             },
@@ -159,18 +161,18 @@ export default function BudgetList({ auth, title, cid, st}) {
                 return (
                     <>
                         <a href={route('budgets.pdf', row['id'])} target="_blank">
-                            <Icon icon="File" id={'ficha' + row['id']} tooltip="Descargar"/>
+                            <Icon icon="File" id={'ficha' + row['id']} tooltip="Descargar" />
                         </a>
                         {row['status'] == 0 &&
-                        <>
-                            <Check color="green" size={20} id={'acecept-' + row['id']} onClick={() => acceptBudget(row['id'])}/>
-                            <X color="red" size={20} id={'reject-' + row['id']} onClick={() => rejectBudget(row['id'])}/>
-                        </>
+                            <>
+                                <Check color="green" size={20} id={'acecept-' + row['id']} onClick={() => acceptBudget(row['id'])} />
+                                <X color="red" size={20} id={'reject-' + row['id']} onClick={() => rejectBudget(row['id'])} />
+                            </>
                         }
                         {row['is_horeca'] == 0 &&
-                        <Edit onClick={() => router.visit(route('budgets.edit', [cid, row['id']]))} id={'edit-' + row['id']}/>
+                            <Edit onClick={() => router.visit(route('budgets.edit', [cid, row['id']]))} id={'edit-' + row['id']} />
                         }
-                        <Trash onClick={() => handleDelete(route('budgets.destroy', row['id']))} id={'delete-' + row['id']}/>
+                        <Trash onClick={() => handleDelete(route('budgets.destroy', row['id']))} id={'delete-' + row['id']} />
                     </>
                 )
             },
@@ -191,7 +193,7 @@ export default function BudgetList({ auth, title, cid, st}) {
                     tableColumns={tableColumns}
                     filters={[]}
                     getList={(d) => getBudgets(d)}
-                /> 
+                />
 
                 <Btn attrBtn={{ color: 'secondary cancel-btn ms-1 mt-4', onClick: () => router.visit(route('clients')) }} >Volver</Btn>
 
@@ -201,22 +203,22 @@ export default function BudgetList({ auth, title, cid, st}) {
                     <ModalHeader toggle={toggleModal}>Rechazar Propuesta</ModalHeader>
                     <ModalBody>
                         <Form className='theme-form'>
-                            <FloatingInput 
-                                label={{label : 'Motivo'}} 
-                                input={{ 
-                                    placeholder : 'Motivo', 
-                                    onChange : handleChange,
-                                    name : 'reason',
-                                    value : data.reason,
-                                    as : 'textarea',
+                            <FloatingInput
+                                label={{ label: 'Motivo' }}
+                                input={{
+                                    placeholder: 'Motivo',
+                                    onChange: handleChange,
+                                    name: 'reason',
+                                    value: data.reason,
+                                    as: 'textarea',
                                 }}
-                                errors = {errors.reason}
+                                errors={errors.reason}
                             />
                         </Form>
                     </ModalBody>
                     <ModalFooter>
                         <Btn attrBtn={{ color: 'secondary cancel-btn', onClick: toggleModal }} >Cerrar</Btn>
-                        <Btn attrBtn={{ color: 'primary save-btn', onClick: saveForm, disabled : processing}}>Guardar</Btn>
+                        <Btn attrBtn={{ color: 'primary save-btn', onClick: saveForm, disabled: processing }}>Guardar</Btn>
                     </ModalFooter>
                 </Modal>
 
@@ -225,21 +227,21 @@ export default function BudgetList({ auth, title, cid, st}) {
                     <ModalBody>
                         <Row>
                             <Col md="8">
-                                <Select 
-                                    label={{label : 'Detalles'}} 
-                                    input={{ 
-                                        placeholder : 'Detalles', 
-                                        onChange : setSelected,
-                                        name : 'detail_id',
-                                        options : detailList,
-                                        defaultValue : selectedOptionDet,
+                                <Select
+                                    label={{ label: 'Detalles' }}
+                                    input={{
+                                        placeholder: 'Detalles',
+                                        onChange: setSelected,
+                                        name: 'detail_id',
+                                        options: detailList,
+                                        defaultValue: selectedOptionDet,
                                     }}
-                                    errors = {errors.detail_id}
+                                    errors={errors.detail_id}
                                     zIndex={2000}
                                 />
                             </Col>
                             <Col md="4">
-                                <Btn attrBtn={{ color: 'primary save-btn btn-sm px-2 mt-4', onClick: toggleAddress}}>Nueva Dirección</Btn>
+                                <Btn attrBtn={{ color: 'primary save-btn btn-sm px-2 mt-4', onClick: toggleAddress }}>Nueva Dirección</Btn>
                             </Col>
                         </Row>
                         {productsList.map((product, index) => {
@@ -249,29 +251,29 @@ export default function BudgetList({ auth, title, cid, st}) {
                                         <b>{product.final_name}</b>
                                     </Col>
                                     <Col md="5">
-                                        <Select 
-                                            label={{label : 'Dirección de Instalación'}} 
-                                            input={{ 
-                                                placeholder : 'Dirección', 
-                                                onChange : setSelectedAddr,
-                                                name : 'address-' + product.id + '-' + index,
-                                                options : addressList,
-                                                defaultValue : selectedOptionAddr,
+                                        <Select
+                                            label={{ label: 'Dirección de Instalación' }}
+                                            input={{
+                                                placeholder: 'Dirección',
+                                                onChange: setSelectedAddr,
+                                                name: 'address-' + product.id + '-' + index,
+                                                options: addressList,
+                                                defaultValue: selectedOptionAddr,
                                             }}
-                                            errors = {errors.product_id}
+                                            errors={errors.product_id}
                                             zIndex={2000 - index - 1}
                                         />
                                     </Col>
                                     <Col md="4">
-                                        <FloatingInput 
-                                            label={{label : 'Notas'}} 
-                                            input={{ 
-                                                placeholder : 'Notas', 
-                                                name : 'notes-' + product.id + '-' + index,
-                                                value : data['notes-' + product.id + '-' + index],
-                                                onChange : handleChange
+                                        <FloatingInput
+                                            label={{ label: 'Notas' }}
+                                            input={{
+                                                placeholder: 'Notas',
+                                                name: 'notes-' + product.id + '-' + index,
+                                                value: data['notes-' + product.id + '-' + index],
+                                                onChange: handleChange
                                             }}
-                                            errors = {errors.notes}
+                                            errors={errors.notes}
                                         />
                                     </Col>
                                 </Row>
@@ -280,11 +282,11 @@ export default function BudgetList({ auth, title, cid, st}) {
                     </ModalBody>
                     <ModalFooter>
                         <Btn attrBtn={{ color: 'secondary cancel-btn', onClick: toggleModalAccept }} >Cerrar</Btn>
-                        <Btn attrBtn={{ color: 'primary save-btn', onClick: saveFormAccept, disabled : processing}}>Guardar</Btn>
+                        <Btn attrBtn={{ color: 'primary save-btn', onClick: saveFormAccept, disabled: processing }}>Guardar</Btn>
                     </ModalFooter>
                 </Modal>
 
-                <AddAddress 
+                <AddAddress
                     title={'Agregar Dirección'}
                     isOpen={modalAddress}
                     closeModal={toggleAddress}
