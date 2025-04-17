@@ -378,7 +378,7 @@ export default function InstallationList({ auth, title, pending, tecnics, client
                                 <FloatingInput 
                                     label={{label : 'Horas'}} 
                                     input={{ 
-                                        placeholder : 'Horas', 
+                                        // placeholder : 'Horas', 
                                         onChange : handleChange,
                                         name : 'hours',
                                         value : data.hours,
